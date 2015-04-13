@@ -63,7 +63,7 @@ salt-call --local state.sls apache
 salt webserver state.sls apache
 ** access to grains in states
 ** access to pillar data in states
-salt webserver pkg.install vim
+# example for reference only:  salt webserver pkg.installed vim
 
 -----------------------------------------------
 Handy commands:
