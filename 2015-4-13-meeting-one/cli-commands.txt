@@ -1,11 +1,23 @@
 -----------------------------------------------
 CLI general syntax:
 -----------------------------------------------
-salt TARGET COMMAND
-salt-call --local TARGET COMMAND
-** special returner
-** batches
-** over ssh
+salt [options] '<target>' <module.function> [arguments]
+
+REMOTE
+salt \* -b 10% disk.usage
+salt \* TARGET MODULE.COMMAND
+salt \* disk.usage
+salt \* disk.usage --out=json
+[no memcache set up - only for reference]   salt \* disk.usage --return memcache     
+salt \* -b 10% disk.usage
+
+OVER SSH
+** requires set up of roster file (ssh keys or password, info to connect to minion)
+salt-ssh webserver disk.usage
+
+LOCAL - especially good for testing, or running a command on a minion from a minion (aka masterless)
+salt-call --local TARGET MODULE.COMMAND
+salt-call --local disk.usage
 
 -----------------------------------------------
 Pillar commands:
@@ -14,12 +26,16 @@ salt-call --local pillar.items
 salt-call --local pillar.get mykey
 salt webserver pillar.items
 salt webserver pillar.get mykey
+** set pillar example
 
 -----------------------------------------------
 Remote (and local) execution:
 -----------------------------------------------
 salt-call --local cmd.run "df -h"
 salt webserver cmd.run "df -h"
+** restart service, do something specific, show my custom module
+salt webserver disk.usage
+
 
 -----------------------------------------------
 Grain commands:
@@ -28,10 +44,24 @@ salt-call --local grain.items
 salt-call --local grain.get mykey
 salt webserver  grain.items
 salt webserver  grain.get mykey
+** set a grain in file, set a grain via cli
+** target by grain for execution - e.g. disk usage for webservers
 
 -----------------------------------------------
 State commands:
 -----------------------------------------------
 salt-call --local state.sls apache
-salt webserver1 state.sls apache
+salt webserver state.sls apache
 ** access to grains in states
+** access to pillar data in states
+salt webserver pkg.install vim
+
+
+Handy commands:
+salt \* saltutil.sync_modules
+salt \* saltutil.sync_states
+salt \* saltutil.sync_grains
+salt \* saltutil.sync_all
+salt \* saltutil.refresh_pillar
+
+
