@@ -1,0 +1,37 @@
+-----------------------------------------------
+CLI general syntax:
+-----------------------------------------------
+salt TARGET COMMAND
+salt-call --local TARGET COMMAND
+** special returner
+** batches
+** over ssh
+
+-----------------------------------------------
+Pillar commands:
+-----------------------------------------------
+salt-call --local pillar.items
+salt-call --local pillar.get mykey
+salt webserver pillar.items
+salt webserver pillar.get mykey
+
+-----------------------------------------------
+Remote (and local) execution:
+-----------------------------------------------
+salt-call --local cmd.run "df -h"
+salt webserver cmd.run "df -h"
+
+-----------------------------------------------
+Grain commands:
+-----------------------------------------------
+salt-call --local grain.items
+salt-call --local grain.get mykey
+salt webserver  grain.items
+salt webserver  grain.get mykey
+
+-----------------------------------------------
+State commands:
+-----------------------------------------------
+salt-call --local state.sls apache
+salt webserver1 state.sls apache
+** access to grains in states
