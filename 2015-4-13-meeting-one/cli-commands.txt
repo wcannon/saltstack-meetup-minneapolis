@@ -4,7 +4,6 @@ CLI general syntax:
 salt [options] '<target>' <module.function> [arguments]
 
 REMOTE
-salt \* -b 10% disk.usage
 salt \* TARGET MODULE.COMMAND
 salt \* disk.usage
 salt \* disk.usage --out=json
@@ -26,16 +25,20 @@ salt-call --local pillar.items
 salt-call --local pillar.get mykey
 salt webserver pillar.items
 salt webserver pillar.get mykey
-** set pillar example
+** set pillar example - update /srv/pillar/example.sls, and saltutil.refresh_pillar
 
 -----------------------------------------------
-Remote (and local) execution:
+Module commands - Remote (and local) execution:
 -----------------------------------------------
 salt-call --local cmd.run "df -h"
+salt \*  cmd.run "df -h"
+salt \* -b 10% disk.usage
 salt webserver cmd.run "df -h"
-** restart service, do something specific, show my custom module
 salt webserver disk.usage
-
+salt webserver service.restart apache2
+** show a custom module:  
+vi /srv/salt/_modules/hello.py
+/srv/salt/_modules/ec2_metata.py
 
 -----------------------------------------------
 Grain commands:
@@ -45,23 +48,31 @@ salt-call --local grain.get mykey
 salt webserver  grain.items
 salt webserver  grain.get mykey
 ** set a grain in file, set a grain via cli
-** target by grain for execution - e.g. disk usage for webservers
+salt -G 'roles:webserver' service.restart apache2
+
+salt '*' grains.remove key val
+salt '*' grains.setvals "{'key1': 'val1', 'key2': 'val2'}"
+salt '*' grains.append roles database
+salt '*' grains.setval some-new-key some-new-value
 
 -----------------------------------------------
 State commands:
 -----------------------------------------------
+# show an example state:  vi /srv/salt/users/admin.sls
 salt-call --local state.sls apache
 salt webserver state.sls apache
 ** access to grains in states
 ** access to pillar data in states
 salt webserver pkg.install vim
 
-
+-----------------------------------------------
 Handy commands:
+-----------------------------------------------
+salt \* -d saltutil   
+salt \* -d saltutil.sync_modules  
 salt \* saltutil.sync_modules
 salt \* saltutil.sync_states
 salt \* saltutil.sync_grains
 salt \* saltutil.sync_all
 salt \* saltutil.refresh_pillar
-
-
+salt \* sys.list_modules
