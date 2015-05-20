@@ -1,0 +1,189 @@
+Yaml Comment       #
+Jinja Comment      {#     #}
+
+
+
+Apache Installation:
+------------------------------------------------------------
+install_apache:
+  pkg.installed:
+    - name:  apache2
+
+make_sure_apache_is_running:
+  service.running:
+    - name: apache2
+    - enable: True
+    - require:
+      - pkg: install_apache
+
++ good on ubuntu
++ clear
++ can be improved a bit e.g. comments
+------------------------------------------------------------
+
+
+Apache Installation version 2:
+------------------------------------------------------------
+# Install apache for ubuntu
+install_apache:
+  pkg.installed:
+    - name:  apache2
+
+# Ensure that the apache web server is running
+make_sure_apache_is_running:
+  service.running:
+    - name: apache2
+    # "enable" sets the service to run at boot
+    - enable: True
+    # making sure the apache pkg is installed before attempting to start the service
+    - require:
+      - pkg: install_apache
+
++ good on ubuntu
++ clear
++ can be improved a bit e.g. support multiple operating systems
+------------------------------------------------------------
+
+
+Apache Installation version 3:
+------------------------------------------------------------
+
+--------------
+map.jinja file
+--------------
+{% set apache = salt['grains.filter_by']({
+    'CentOS': {
+        'pkg': 'httpd',
+        'service': 'httpd',
+        'config': '/etc/httpd/httpd.conf',
+        'vhosts_path': '/etc/httpd/sites',
+    },
+    'Debian': {
+        'pkg': 'apache2',
+        'service': 'apache2',
+        'config': '/etc/apache2/apache2.conf',
+        'vhosts_path': '/etc/apache2/sites-enabled',
+    },
+}, merge=salt['pillar.get']('apache:lookup')) %}
+{ # Note: we have not created a pillar to use with this yet # }
+---------------
+
+---------------
+apache.sls file
+---------------
+# assuming all apache state files are in a directory named apache
+{% from "apache/map.jinja" import apache with context %}
+
+# Install apache for ubuntu
+install_apache:
+  pkg.installed:
+    - name:  {{ apache.pkg }}
+
+# Ensure that the apache web server is running
+make_sure_apache_is_running:
+  service.running:
+    - name: {{ apache.service }}
+    # "enable" sets the service to run at boot
+    - enable: True
+    # apache pkg is installed before attempting to start the service
+    - require:
+      - pkg: install_apache
+
++ good on ubuntu, and centos
++ clear
++ can add overrides in pillar
+e.g.
+------------------
+apache pillar file
+------------------
+apache:
+  lookup:
+    key: value
+------------------
+------------------------------------------------------------
+
+
+Nice jinja macro example:
+-----------------------------
+{% macro user_state(state_id, user_name, shell='/bin/bash', groups=[]) %}
+{{ state_id }}:
+  user.present:
+    - name: {{ user_name }}
+    - shell: {{ shell }}
+    - groups: {{ groups | json() }}
+{% endmacro %}
+
+{% for user_info in salt.pillar.get('my_users', []) %}
+{{ user_state('user_number_' ~ loop.index, **user_info) }}
+{% endfor %}
+
+
+
+
+
+
+Example of calling out to a salt execution module from a state file:
+{% set is_selinux_enabled = salt.cmd.run('sestatus') == '1' %}
+
+Another example of calling out to a salt execution mdule:
+{% if '/storage' in salt['mount.active']() %}
+/usr/local/etc/myfile.conf:
+  file:
+    - symlink
+    - target: /storage/myfile.conf
+{% endif %}
+
+
+Example of convenient way to load defaults from a yaml file:
+{% load_yaml as haproxy_defaults %}
+
+# now we can get at the data like this:  
+{% set haproxy = haproxy_defaults['external_loadbalancer'] %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
